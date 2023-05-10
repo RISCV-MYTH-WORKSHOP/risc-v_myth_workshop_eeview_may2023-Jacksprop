@@ -11,11 +11,11 @@
    |calc
       @0
          $reset = *reset;
-         
+      @1   
          //$val1 will be the previous result of the output
          //$val2 will have the lowest 4 bits to be randomized and bits 31-4 will be assigned to 0 by default
          
-         $val1[31:0] = >>1$out;
+         $val1[31:0] = >>2$out;
          $val2[31:0] = $rand2[3:0];
    
          //Operations of Calculator
@@ -23,15 +23,22 @@
          $diff[31:0] = $val1 - $val2;
          $prod[31:0] = $val1 * $val2;
          $quot[31:0] = $val1 / $val2;
-   
-         //MUX Selector for Calc operation
-         $out[31:0] = $reset ? 32'b0 : //Reset to 0
+         
+         //Valid 
+         $valid = $reset ? 1'b0 :
+                  >>1$valid + 1'b1;
+         
+         
+      @2   //MUX Selector for Calc operation
+         $out[31:0] = $reset || !$valid ? 32'b0 : //Reset to 0
                       $op[1:0] == 2'b00 ? $sum :
                       $op == 2'b01 ? $diff :
                       $op == 2'b10 ? $prod :
                                      $quot;
 
-
+       
+         
+         
       // Macro instantiations for calculator visualization(disabled by default).
       // Uncomment to enable visualisation, and also,
       // NOTE: If visualization is enabled, $op must be defined to the proper width using the expression below.
