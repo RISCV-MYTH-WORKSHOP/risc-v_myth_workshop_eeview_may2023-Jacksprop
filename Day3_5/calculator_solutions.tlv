@@ -31,13 +31,18 @@
          $reset_or_valid = $valid || $reset;
          
          
-      @2 //MUX Selector for Calc operation
-         $out[31:0] = $reset       ? 32'b0 : 
-                      $op[1:0] == 2'b00 ? $sum :
-                      $op == 2'b01 ? $diff :
-                      $op == 2'b10 ? $prod :
-                                     $quot;
-
+      @2 //MUX Selector for Calc operation. Expanded to 3 bit for MEM functions.
+         $out[31:0] = $reset        ? 32'b0 : 
+                      $op[2:0] == 3'b000 ? $sum :
+                      $op == 3'b001 ? $diff :
+                      $op == 3'b010 ? $prod :
+                      $op == 3'b011 ? $quot;
+                      $op == 3'b100 ? >>2$mem : >>2$out;
+         
+         
+         $mem[31:0] = $reset ? 32'b0 :
+                      
+         
       @3 
          
          
