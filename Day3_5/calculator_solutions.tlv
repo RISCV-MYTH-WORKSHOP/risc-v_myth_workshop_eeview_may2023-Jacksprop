@@ -12,31 +12,33 @@
       @0
          $reset = *reset;
       @1   
-         //$val1 will be the previous result of the output
-         //$val2 will have the lowest 4 bits to be randomized and bits 31-4 will be assigned to 0 by default
          
+         //$val1 will be the second previous result of the output
+         //$val2 will have the lowest 4 bits to be randomized and bits 31-4 will be assigned to 0 by default
          $val1[31:0] = >>2$out;
          $val2[31:0] = $rand2[3:0];
-   
+         
          //Operations of Calculator
          $sum[31:0] = $val1 + $val2;
          $diff[31:0] = $val1 - $val2;
          $prod[31:0] = $val1 * $val2;
          $quot[31:0] = $val1 / $val2;
          
-         //Valid 
+         //Valid based on every second cycle, for output/input val1 to match
          $valid = $reset ? 1'b0 :
                   >>1$valid + 1'b1;
          
+         $reset_or_valid = $valid || $reset;
          
-      @2   //MUX Selector for Calc operation
-         $out[31:0] = $reset || !$valid ? 32'b0 : //Reset to 0
+         
+      @2 //MUX Selector for Calc operation
+         $out[31:0] = $reset       ? 32'b0 : 
                       $op[1:0] == 2'b00 ? $sum :
                       $op == 2'b01 ? $diff :
                       $op == 2'b10 ? $prod :
                                      $quot;
 
-       
+      @3 
          
          
       // Macro instantiations for calculator visualization(disabled by default).
@@ -47,7 +49,7 @@
       //  o $rand1[3:0]
       //  o $rand2[3:0]
       //  o $op[x:0]
-      
+   
    m4+cal_viz(@3) // Arg: Pipeline stage represented by viz, should be atleast equal to last stage of CALCULATOR logic.
 
    
