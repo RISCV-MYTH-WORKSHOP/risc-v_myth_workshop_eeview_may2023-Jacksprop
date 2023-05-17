@@ -34,13 +34,13 @@
             $quot[31:0] = $val1 / $val2;
             
          @2 //MUX Selector for Calc operation. Expanded to 3 bit for MEM functions.
-            $out[31:0] = $reset        ? 32'b0 : 
+            $out[31:0] = $reset        ? 32'b0 :
                          $op == 3'b000 ? $sum :
                          $op == 3'b001 ? $diff :
                          $op == 3'b010 ? $prod :
                          $op == 3'b011 ? $quot :
                          $op == 3'b100 ? >>2$mem : //recall/save feature
-                         >>2$out; 
+                         >>2$out;
             
             //Memory functions for recall/save features
             $mem[31:0] = $reset ? 32'b0 :
@@ -48,23 +48,11 @@
                          >>2$mem; //otherwise recall
             
          
-         
-      // Macro instantiations for calculator visualization(disabled by default).
-      // Uncomment to enable visualisation, and also,
-      // NOTE: If visualization is enabled, $op must be defined to the proper width using the expression below.
-      //       (Any signals other than $rand1, $rand2 that are not explicitly assigned will result in strange errors.)
-      //       You can, however, safely use these specific random signals as described in the videos:
-      //  o $rand1[3:0]
-      //  o $rand2[3:0]
-      //  o $op[x:0]
-   
    m4+cal_viz(@3) // Arg: Pipeline stage represented by viz, should be atleast equal to last stage of CALCULATOR logic.
 
-   
    // Assert these to end simulation (before Makerchip cycle limit).
    *passed = *cyc_cnt > 40;
    *failed = 1'b0;
    
-
 \SV
    endmodule
