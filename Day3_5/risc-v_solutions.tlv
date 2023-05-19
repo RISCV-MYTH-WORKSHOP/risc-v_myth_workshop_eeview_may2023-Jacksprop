@@ -123,8 +123,8 @@
          $src2_value[31:0] = $rf_rd_data2[31:0];
          
          //Register File Write
-         $rf_wr_en = $rd_valid;
-         $rf_wr_index[4:0] = $rd && $rd !==0;
+         $rf_wr_en = $rd_valid && $rd != 0;
+         $rf_wr_index[4:0] = $rd;
          $rf_wr_data[31:0] = $result;
          
          //ALU Operations. $result is the output of the ALU.
