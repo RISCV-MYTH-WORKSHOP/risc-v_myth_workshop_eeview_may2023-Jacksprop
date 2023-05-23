@@ -133,6 +133,7 @@
                          $is_add ? $src1_value + $src2_value:
                          32'b0;
          
+         //Branch instructions
          $taken_br = $is_beq ? ($src1_value == $src2_value):
                      $is_bne ? ($src1_value != $src2_value):
                      $is_blt ? (($src1_value < $src2_value) ^ ($src1_value[31] != $src2_value[31])):
@@ -140,11 +141,13 @@
                      $is_bltu ? ($src1_value < $src2_value):
                      $is_bgeu ? ($src1_value >= $src2_value):
                                 1'b0;
-         
+         //Update PC based on branch taken
          $br_tgt_pc[31:0] = $pc + $imm;
          
+         //Testbench for counter
          *passed = |cpu/xreg[10]>>5$value == (1+2+3+4+5+6+7+8+9);
-
+         
+         
          
          `BOGUS_USE($rd $rd_valid $rs1 $rs1_valid $rs2 $rs2_valid $funct3 $funct3_valid $funct7 $funct7_valid $is_r_instr
               $is_i_instr $is_s_instr $is_b_instr $is_u_instr $is_j_instr $opcode $imm
