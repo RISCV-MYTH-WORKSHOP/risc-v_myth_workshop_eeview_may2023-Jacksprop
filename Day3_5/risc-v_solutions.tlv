@@ -42,8 +42,8 @@
          $reset = *reset;
          
          $pc[31:0] = >>1$reset ? 32'b0:
-                     >>1$taken_br ? >>1$br_tgt_pc :
-                     >>1$pc + 32'd4;
+                     >>3$valid_taken_br ? >>3$br_tgt_pc :
+                     >>3$pc;
          
          $valid = $reset ? 1'b0:
                     $start ? 1'b1:
@@ -55,6 +55,8 @@
          $imem_rd_en = !$reset;
          $imem_rd_addr[3-1:0] = $pc[3+1:2];
       @1   
+         $inc_pc = $pc +32'd4;
+         
          $instr[31:0] = $imem_rd_data[31:0];
          
          //Decode logic for RV321 instruction sets
@@ -152,8 +154,8 @@
          
          //Testbench for counter
          *passed = |cpu/xreg[10]>>5$value == (1+2+3+4+5+6+7+8+9);
-         
-         
+      @3   
+         $valid_taken_br = $valid && $taken_br;
          
          `BOGUS_USE($rd $rd_valid $rs1 $rs1_valid $rs2 $rs2_valid $funct3 $funct3_valid $funct7 $funct7_valid $is_r_instr
               $is_i_instr $is_s_instr $is_b_instr $is_u_instr $is_j_instr $opcode $imm
