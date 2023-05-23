@@ -45,6 +45,12 @@
                      >>1$taken_br ? >>1$br_tgt_pc :
                      >>1$pc + 32'd4;
          
+         $valid = $reset ? 1'b0:
+                    $start ? 1'b1:
+                    >>3$valid;
+         
+         $start = >>1$reset && !$reset;
+         
          
          $imem_rd_en = !$reset;
          $imem_rd_addr[3-1:0] = $pc[3+1:2];
