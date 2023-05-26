@@ -43,7 +43,7 @@
          
          $pc[31:0] = >>1$reset ? 32'b0:
                      >>3$valid_taken_br ? >>3$br_tgt_pc :
-                     >>3$pc;
+                     >>3$inc_pc;
          
          $valid = $reset ? 1'b0:
                     $start ? 1'b1:
@@ -73,7 +73,6 @@
          $is_u_instr = $instr[6:2] ==? 5'b0x101;
          
          //Immediate instruction fields
-         
          $imm[31:0] = $is_i_instr ? {  {21{$instr[31]}}, $instr[30:20]  } :
                       $is_s_instr ? {  {21{$instr[31]}}, $instr[30:25], $instr[11:7]  } :
                       $is_b_instr ? {  {20{$instr[31]}}, $instr[7], $instr[30:25], $instr[11:8], 1'b0 } :
@@ -119,6 +118,7 @@
          $is_addi = $dec_bits ==? 11'bx_000_0010011;
          //instruction w/ funct7[5]{instr[30]} bit 0
          $is_add = $dec_bits ==? 11'b0_000_0110011;
+      @2 
          
          //Register File
          //Register File Read
@@ -128,11 +128,17 @@
          $rf_rd_index2[4:0] = $rs2;
          
          //Register File Output
-         $src1_value[31:0] = $rf_rd_data1[31:0];
+         $src1_value[31:0] = //$rf_wr_en && >>1$rd == $rs1 ? >>1$result:
+                              $rf_rd_data1[31:0];
+         
          $src2_value[31:0] = $rf_rd_data2[31:0];
          
+         //Update PC based on branch taken
+         $br_tgt_pc[31:0] = $pc + $imm;
+         
+      @3   
          //Register File Write
-         $rf_wr_en = $rd_valid && $rd != 0;
+         $rf_wr_en = $rd_valid && $rd != 0 && $valid;
          $rf_wr_index[4:0] = $rd;
          $rf_wr_data[31:0] = $result;
          
@@ -149,11 +155,11 @@
                      $is_bltu ? ($src1_value < $src2_value):
                      $is_bgeu ? ($src1_value >= $src2_value):
                                 1'b0;
-         //Update PC based on branch taken
-         $br_tgt_pc[31:0] = $pc + $imm;
+         
          
          //Testbench for counter
          *passed = |cpu/xreg[10]>>5$value == (1+2+3+4+5+6+7+8+9);
+         
       @3   
          $valid_taken_br = $valid && $taken_br;
          
@@ -172,7 +178,7 @@
    //  o CPU visualization
    |cpu
       m4+imem(@1)    // Args: (read stage)
-      m4+rf(@1, @1)  // Args: (read stage, write stage) - if equal, no register bypass is required
+      m4+rf(@2, @3)  // Args: (read stage, write stage) - if equal, no register bypass is required
       //m4+dmem(@4)    // Args: (read/write stage)
       //m4+myth_fpga(@0)  // Uncomment to run on fpga
 
